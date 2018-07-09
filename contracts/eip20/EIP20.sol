@@ -5,24 +5,35 @@ import "./EIP20Interface.sol";
 contract EIP20 is EIP20Interface {
 
     uint256 constant private MAX_UINT256 = 2 ** 256 - 1;
-    mapping(address => uint256) public balances;
-    mapping(address => mapping(address => uint256)) public allowed;
+    mapping(address => uint256) public balances; // 账户余额
+    mapping(address => mapping(address => uint256)) public allowed; // 批准可转账余额
 
-    string public name;
-    uint8 public decimals;
-    string public symbol;
+    /** 
+     * 注意：
+     * 以下为可选参数；
+     * 可以自定义token信息，不影响核心功能；
+     * 有些钱包不会读取这些参数。
+     */
+    string public name; // token 名称
+    uint8 public decimals; // 显示小数点后位数
+    string public symbol; // 唯一表示符，例如： SBX
     
+    /// @notice 构造函数
+    /// @param _initialAmount msg.sender 初始化时账户余额
+    /// @param _tokenName token 名称
+    /// @param _decimalUints 小数点单位
+    /// @param _tokenSymbol token 简称，唯一标识符
     constructor (
         uint256 _initialAmount,
         string _tokenName,
         uint8 _decimalUints,
         string _tokenSymbol
     ) public {
-        balances[msg.sender] = _initialAmount;
-        totalSupply = _initialAmount;
-        name = _tokenName;
-        decimals = _decimalUints;
-        symbol = _tokenSymbol;
+        balances[msg.sender] = _initialAmount;  // 给创建者初始 token
+        totalSupply = _initialAmount;           // 更新总额度
+        name = _tokenName;                      // 设置在钱包中的显示名称
+        decimals = _decimalUints;               // 设置在钱包中显示小树位数信息
+        symbol = _tokenSymbol;                  // 设置token在钱包中的符号
     }
     
     function transfer(address _to, uint256 _value) public returns (bool success){

@@ -6,6 +6,15 @@ pragma solidity ^0.4.21;
 
 contract EIP20Interface {
 
+    /**
+     * 这里和 ERC20 标准略有不同。
+     * 用
+     * uint256 public totalSupply;
+     * 替换了
+     * function totalSupply() constant returns (uint256 supply);
+     * public 申明的状态编译后默认会生成 getter 方法。
+     */
+
     // token 的总量
     uint256 public totalSupply;
 
@@ -28,6 +37,7 @@ contract EIP20Interface {
     function transferFrom(address _from, address _to, uint256 _value) public returns (bool success);
 
     /// @notice msg.sender 同意 _spender 发送 _value 数量的 token
+    /// 转帐前先批准可转账余额。
     /// @param _spender 能够传输 token 的账户地址
     /// @param _value 同意转账的金额 token
     /// @return 是否同意转账

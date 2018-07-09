@@ -43,16 +43,16 @@ contract("EIP20", (accounts) => {
         assert.strictEqual(balanceBefore.toNumber(), 10000);
 
         // await assertRevert(new Promise((resolve, reject) => {
-        // 	web3.eth.sendTransaction({
-        // 		from: accounts[0],
-        // 		to: HST.address,
-        // 		value: web3.toWei('10', 'Ether')
-        // 	}, (err, res) => {
-        // 		if (err) {
-        // 			reject(err);
-        // 		}
-        // 		resolve(res);
-        // 	});
+        //  web3.eth.sendTransaction({
+        //      from: accounts[0],
+        //      to: HST.address,
+        //      value: web3.toWei('10', 'Ether')
+        //  }, (err, res) => {
+        //      if (err) {
+        //          reject(err);
+        //      }
+        //      resolve(res);
+        //  });
         // }));
 
         const balanceAfter = await HST.balanceOf.call(accounts[0]);
@@ -60,24 +60,53 @@ contract("EIP20", (accounts) => {
     });
 
     it('transfers: should transfer 10000 tokens to accounts[1] with accounts[0] having 10000', async () => {
-        await HST.transfer(accounts[1], 10000, { from: accounts[0] });
+        await HST.transfer(accounts[1], 10000, {
+            from: accounts[0]
+        });
         const balance = await HST.balanceOf.call(accounts[1]);
         assert.strictEqual(balance.toNumber(), 10000);
     });
 
     it('transfers: should fail when transfer 10001 tokens to accounts[1] with accounts[0] having 10000', async () => {
-        await assertRevert(HST.transfer.call(accounts[1], 10001, { from: accounts[0] }));
+        await assertRevert(HST.transfer.call(accounts[1], 10001, {
+            from: accounts[0]
+        }));
     });
 
     it('transfers: should handle zero-transfer normally', async () => {
-        assert(await HST.transfer(accounts[1], 0, { from: accounts[0] }), "zero-transfer has fail");
+        assert(await HST.transfer(accounts[1], 0, {
+            from: accounts[0]
+        }), "zero-transfer has fail");
     });
 
     it('approvals: msg.sender should approve 100 to accounts[0]', async () => {
-        await HST.approve(accounts[1], 100, { from: accounts[0] });
+        await HST.approve(accounts[1], 100, {
+            from: accounts[0]
+        });
         const allowance = await HST.allowance.call(accounts[0], accounts[1]);
         assert.strictEqual(allowance.toNumber(), 100);
     });
 
-    it('approvals: ', );
+    it('approvals: msg.sender approves accounts[1] of 100 & withdraw 20 once', async () => {
+        const balance0 = await HST.balanceOf.call(accounts[0]);
+        assert.strictEqual(balance0.toNumber(), 10000);
+
+        await HST.approve(accounts[1], 100, {
+            from: accounts[0]
+        });
+        const balance2 = await HST.balanceOf(accounts[2]);
+        assert.strictEqual(balance2.toNumber(), 0, 'accounts[2] balance is not correct');
+
+        await HST.transferFrom(accounts[0], accounts[2], 20, {
+            from: accounts[1]
+        });
+        const allowance01 = await HST.allowance.call(accounts[0], accounts[1]);
+        assert.strictEqual(allowance01.toNumber(), 80);
+
+        const balance22 = await HST.balanceOf(accounts[2]);
+        assert.strictEqual(balance22.toNumber(), 20);
+
+        const balance02 = await HST.balanceOf.call(accounts[0]);
+        assert.strictEqual(balance02.toNumber(), 9980);
+    });
 });
